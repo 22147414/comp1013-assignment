@@ -9,6 +9,7 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
 library(tidyverse)
 library(kableExtra)
 library(ggplot2)
@@ -16,19 +17,19 @@ library(ggplot2)
 
 # Cover Page
 
-**Name:** Kamshika Vijekumar  
-**Student Number:** 22147414  
+**Name:** Kamshika Vijekumar
+**Student Number:** 22147414
 **Subject:** COMP1013 Analytics Programming
 
-> **Declaration:**  
-> I certify that this assignment is my own work, based on my personal study and/or research.  
-> I have acknowledged all material and sources used in the preparation of this assignment, whether they be books, articles, reports, lecture notes, any other kind of document, electronic or personal communication.  
+> **Declaration:**
+> I certify that this assignment is my own work, based on my personal study and/or research.
+> I have acknowledged all material and sources used in the preparation of this assignment, whether they be books, articles, reports, lecture notes, any other kind of documents, electronic or personal communication.
 > I also certify that this assignment has not previously been submitted for assessment in any other unit or to any other institution.
 
 # Part 1: User Categorisation and Summary Statistics
 
 ### Summary:
-The categorisation of users shows that Veteran users tend to leave more reviews on average, while New users provide higher average star ratings. This suggests experienced users may be more active but slightly more critical.
+The categorisation of users shows that Veteran users tend to leave more reviews on average, while New users provide higher average star ratings. This suggests experienced users may be more active but slightly more critical. 
 
 
 ```{r}
@@ -50,7 +51,7 @@ categorise_user <- function(age) {
     return("New")
   }
 }
-
+  
 user_df$category <- sapply(user_df$member_since_years, categorise_user)
 
 summary_stats <- user_df %>%
@@ -68,7 +69,7 @@ ggplot(summary_stats, aes(x = category, y = review_count, fill = category)) +
   geom_bar(stat = "identity") +
   ggtitle("Average Review Count by User Category") +
   theme_minimal()
-
+  
 ggplot(summary_stats, aes(x = category, y = average_stars, fill = category)) +
   geom_bar(stat = "identity") +
   ggtitle("Average Review Stars by User Category") +
@@ -78,27 +79,27 @@ ggplot(summary_stats, aes(x = category, y = average_stars, fill = category)) +
 # Part 2: Monthly Business Group Rating Trends
 
 ### Summary:
-The monthly trend analysis reveals that both business groups exhibit relatively stable average ratings over time. Slight fluctuations suggest consistent performance, though Group B shows marginally higher scores in recent months.
+The monthly trend analysis reveals that both business groups exhibit relatively stable average rating over time. Slight fluctuations suggest consistent performance, though Group B shows marginally higher scores in recent months.
 
 
 ```{r}
-reviews <- read.csv("reviews (1).csv")
+reviews <- read.csv("reviews.csv")
 businesses <- read.csv("businesses.csv")
 
 reviews$date <- as.Date(reviews$date)
 merged <- merge(reviews, businesses, by = "business_id")
 merged$month <- format(as.Date(merged$date), "%Y-%m")
 
-monthly_group <- merged %>%
+monthly_group <- merged %>% 
   group_by(business_group, month) %>%
   summarise(stars = mean(stars, na.rm = TRUE), .groups = 'drop')
 
-kable(head(monthly_group), caption = "Monthly Average Stars by Business Group") %>%
+kable(head(monthly_group), caption = "Monthly Average Stars by Business Groups") %>%
   kable_styling()
 
-# Line plot
+# Line Plot 
 ggplot(monthly_group, aes(x = month, y = stars, color = business_group, group = business_group)) +
-  geom_line() + 
+  geom_line() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   labs(title = "Average Monthly Ratings by Business Group", x = "Month", y = "Average Stars") +
   theme_minimal()
@@ -107,7 +108,7 @@ ggplot(monthly_group, aes(x = month, y = stars, color = business_group, group = 
 # Part 3: Review Length vs. Star Ratings
 
 ### Summary:
-There is no significant difference in the length of reviews across star ratings. This implies that the sentiment (rating) does not influence how long users write, and review length may not be a strong indicator of sentiment.
+There is no significant difference in the length of reviews across star ratings. This implies that the sentiment (rating) does not influence how long users write, and review length may not be a strong indicator of sentiment. 
 
 
 ```{r}
@@ -123,7 +124,7 @@ review_length_summary <- merged %>%
     .groups = 'drop'
   )
 
-kable(review_length_summary, caption = "Review Length Summary by Star Rating") %>%
+kable(review_length_summary, caption = "Review Length Summary by star Rating")  %>%
   kable_styling()
 
 # Boxplot
@@ -135,38 +136,36 @@ ggplot(merged, aes(x = factor(stars), y = review_length)) +
 
 # Part 4: Top 1-Star Review Businesses
 
-### Summary:
-The top businesses receiving 1-star reviews include both chain and local businesses. This metric can help identify brands with potential service or quality issues that need investigation.
+### Summary: 
+The top businesses receiving 1-star reviews include both chain and local businesses. This metric can help identify brands with potential service or quality issues that may require further investigation. 
 
 
 ```{r}
-one_star <- merged %>% filter(stars == 1)
-top_one_star <- one_star %>%
-  group_by(business_id) %>%
-  summarise(one_star_count = n(), .groups = 'drop') %>%
-  arrange(desc(one_star_count)) %>%
-  left_join(businesses, by = "business_id") %>%
-  select(business_id, one_star_count, name) %>%
+one_star <- merged  %>% filter(stars == 1)
+top_one_star <- one_star  %>%
+  group_by(business_id)  %>%
+  summarise(one_star_count = n(), .groups = 'drop')  %>%
+  arrange(desc(one_star_count))  %>%
+  left_join(businesses, by = "business_id")  %>%
+  select(business_id, one_star_count, name)  %>%
   head(10)
 
-kable(top_one_star, caption = "Top 10 Businesses with Most 1-Star Reviews") %>%
+kable(top_one_star, caption = "Top 10 Businesses with Most 1-Star Reviews")  %>%
   kable_styling()
 
 # Bar plot
 ggplot(top_one_star, aes(x = reorder(name, one_star_count), y = one_star_count)) +
   geom_bar(stat = "identity", fill = "tomato") +
   coord_flip() +
-  labs(title = "Top 10 Businesses with Most 1-Star Reviews", x = "Business", y = "1-Star Reviews") +
+  labs(title = "Top 10 Businesses with Most 1-Star Reviews", x= "Business", y = "1-Star Reviews") +
   theme_minimal()
 ```
 
-# GitHub Repository
+# GitHub Respository 
 
 ### Final Reflection:
-Throughout this project, I applied key data wrangling, summarisation, and visualisation skills using R and tidyverse. I learned to structure my work for clarity, reproducibility, and real-world relevance. This assignment enhanced both my analytical mindset and my confidence in working with real datasets.
+Throughout this project, I applied data wrangling, summarisation, and visualisation skills using R and tidyverse. I learned to structure my work for clarity, reproducibility, real-world relevance. This assignment enhanced both my analytical mindset and my confidence in working with real datasets. 
 
-All code and data are version-controlled and available at:  
+All code and data are version-controlled and available at:
 **[GitHub Repository](https://github.com/WSU-Data-Science-Programming/assignment-22147414)**
 
-### Final Reflection:
-Throughout this project, I applied key data wrangling, summarisation, and visualisation skills using R and tidyverse. I learned to structure my work for clarity, reproducibility, and real-world relevance. This assignment enhanced both my analytical mindset and my confidence in working with real datasets.
